@@ -1,5 +1,6 @@
 import streamlit as st
 import joblib
+import pandas as pd
 
 model = joblib.load("warehouse_robot_q_table.pkl")
 
@@ -35,26 +36,24 @@ state = st.number_input(
 )
 
 if st.button("Find Best Action"):
-
+    
     q_values = model[state]
 
-    best_action_number = q_values.argmax()
-    best_action = actions[best_action_number]
-
-    next_state = next_states[state][best_action_number]
+    q_table = pd.DataFrame({
+        "Action": ["LEFT", "RIGHT", "UP", "DOWN"],
+        "Q-value": q_values
+    })
 
     st.subheader("Q-Values")
+    st.dataframe(q_table)
 
-    st.write("LEFT :", q_values[0])
-    st.write("RIGHT :", q_values[1])
-    st.write("UP :", q_values[2])
-    st.write("DOWN :", q_values[3])
+    best_action = ["LEFT", "RIGHT", "UP", "DOWN"][q_values.argmax()]
 
-    st.write("Current State:", state)
+    st.subheader("Best Action")    
 
-    st.write("Best Action:", best_action)
+    best_action_number = q_values.argmax()
 
-    st.write("Next State:", next_state)
+    next_state = next_states[state][best_action_number]
 
     if state == 15:
         st.success("You are currently at the Goal.")
